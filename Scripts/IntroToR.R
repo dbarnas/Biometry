@@ -318,7 +318,7 @@ p<-p + geom_errorbar(aes(ymax=meanLength+se, ymin=meanLength-se), position=posit
 print(p)
 
 
-#Let's make another plot, but not plotting all four of our possible groups.
+#Let's make another plot, but now plotting all four of our possible groups.
 #We will need to create a new dataframe with the new means and se.
 graphdata2 <- mydata %>%
   group_by(Location, TidalHeight) %>%
@@ -339,7 +339,8 @@ ggplot(graphdata2, aes(x=Location, y=meanLength, fill=factor(TidalHeight), group
 
 #There are tons and tons of colors available in R. Google the R color palette for a complete set
 
-
-
+#http://html-color-codes.com/
+  
+#https://www.nceas.ucsb.edu/sites/default/files/2020-04/colorPaletteCheatsheet.pdf
 
 

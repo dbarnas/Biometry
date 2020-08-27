@@ -98,6 +98,8 @@ Passcode: introbio
 - aim for 100% mastery, not just what you need to get an A
 - don't give up too soon or spend too much time, and know when to ask for help
 
+**IntroToR.R Questions**
+- what is IQR (interquartile range)?
 
 
 
