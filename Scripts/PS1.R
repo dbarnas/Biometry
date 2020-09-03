@@ -42,6 +42,6 @@ ggplot(myMean, aes(x=Location, y=meanDensity)) +
         plot.title = element_text(hjust = 0.5))+
   geom_bar(stat="identity", position="dodge", size=0.6) + #determines the bar width
   geom_errorbar(aes(ymax=meanDensity+se, ymin=meanDensity-se), stat="identity", position=position_dodge(width=0.9), width=0.1) + #adds error bars
-  labs(x="Microcosm Sample Location", y="Protozoa Densities (# per uL)", title="Protozoa Density Samples by Microcosm Location (made in R)") + #labels the x and y axes
+  labs(x="Microcosm Sample Location", y="Protozoa Densities (# per uL)") + #labels the x and y axes
   scale_fill_manual(values=c("Bottom"="blue","Top"="blue")) + #fill colors for the bars
   ggsave("Output/PS1.png")

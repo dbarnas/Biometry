@@ -100,12 +100,18 @@ Standardizing curves
       - we usually underestimate the variance but if it's n-1, we are closer to the true variance
       - almost always n-1 but no rare occassions it'll be n-2 (like with regressions)
 
-**Standard Error of Mean (SEM)
+**Standard Error of Mean (SEM)**
 - you can reduce SEM by replicating more
 - variance divided by the square root of sample size
 - used to tell us how confident we are that our sample mean is reflective of the population mean
 - standard error bars: "we measured the sample mean, and we're pretty sure the population mean falls within this range"
   - does not tell us variance of the data.
+
+**Standard Deviation**  
+- used if we care about the distribution of the data, which is used sometimes, but much less often then standard error
+- usually when we plot means we want to show our confidence in the mean (which is SE), but SD used occassionally
+
+
 
 
 
