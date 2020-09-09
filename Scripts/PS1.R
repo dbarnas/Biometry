@@ -27,12 +27,20 @@ myVar2<-mySD%>%
   group_by(Location)%>%
   mutate(Var=(SD^2))
 
-# 95% confidence intervals
+# 95% confidence intervals (where 95% of my sample data falls)
 # 95% CI = mean +/- sd*1.96
 myConfidence<-mydata%>%
   group_by(Location)%>%
   summarise(meanDensity=mean(Density,na.rm=T),StDev=sd(Density,na.rm=T))%>%
   mutate(posCI=meanDensity+StDev*1.96, negCI=meanDensity-StDev*1.96)
+
+# alternative 95% confidence intervals (my confidence that my sample data represents the population)
+# 95% CI = mean +/- se*1.96
+myConfidence2<-mydata%>%
+  group_by(Location)%>%
+  summarize(meanDensity=mean(Density, na.rm=TRUE), se=sd(Density, na.rm=TRUE)/sqrt(length(na.omit(Density))))%>%
+  mutate(posCI=meanDensity+se*1.96, negCI=meanDensity-se*1.96)
+
 
 # graphing
 

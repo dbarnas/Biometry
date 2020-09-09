@@ -1,7 +1,7 @@
-#Biometry Class 9-1-2020
+# Biometry Class 9-1-2020
 
-###How to communicate your science?  
-####Graphical exploration of data; Best ways to graph your data; Data Transformation; Data Presentation
+### How to communicate your science?  
+#### Graphical exploration of data; Best ways to graph your data; Data Transformation; Data Presentation
 
 **Before lecture**
 - Download data and scripts
