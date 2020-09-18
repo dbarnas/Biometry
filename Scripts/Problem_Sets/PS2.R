@@ -1,8 +1,18 @@
 # Problem Set 2
 
 library(tidyverse)
-library(moments) # for skewness and kurtosis
+
+# for skewness and kurtosis
+library(moments)
+
+#To make a probability plot with confidence intervals
+library(car)
+library(MASS)
+
+###############
 # Question 1
+###############
+
 data1<-read_csv("Data/kelp_bass_gonad_mass.csv")
 
 summary<-data1%>%
@@ -38,8 +48,10 @@ skewness<-skewness(data1$gonad_mass, na.rm=TRUE)
 kurtosis<-kurtosis(data1$gonad_mass, na.rm=TRUE)
 # 5.16
 
-
+###############
 # Question 2
+###############
+
 data2<-data1%>%
   mutate(gonad_pluss5=gonad_mass+5.0)
 summary(data2)
@@ -56,8 +68,10 @@ skewness(data2$gonad_pluss5, na.rm=TRUE)
 kurtosis(data2$gonad_pluss5, na.rm=TRUE)
 
 
-
+###############
 # Questions 3
+###############
+
 data3<-data1%>%
   mutate(gonad_pluss5_mult10=(gonad_mass+5.0)*10)
 summary(data3)
@@ -74,8 +88,10 @@ skewness(data3$gonad_pluss5_mult10, na.rm=TRUE)
 kurtosis(data3$gonad_pluss5_mult10, na.rm=TRUE)
 
 
-
+###############
 # Question 4
+###############
+
 # Make a histogram of all raw observations (untransformed values) in the kelp bass gonad mass data set
 hist(data1$gonad_mass) # note: 8 bins
 
@@ -89,8 +105,10 @@ ggplot(data=data1,aes(x=gonad_mass))+
 # don't need a title, instead give a figure legend
 
 
-
+###############
 # Question 5
+###############
+
 # Convert all raw observations in the kelp bass data set into Z-scores
 zscoreMass<-scale(data1$gonad_mass, center=TRUE, scale=TRUE) 
 # Center function centers the data on the mean (subtracts mean); Scale divides by s.d.
@@ -108,8 +126,10 @@ ggplot(data=zdata, aes(x=zscore))+
   ggsave("Output/PS2_5.png")
 
 
-
+###############
 # Question 6
+###############
+
 # Use the original kelp bass gonad data to create a Normal Probability Plot
 #to get probability plot
 qqnorm(data1$gonad_mass)
@@ -124,8 +144,10 @@ library(MASS)
 qqp(data1$gonad_mass, "norm") 
 
 
+###############
+# Question 7
+###############
 
-# Wuestion 7
 data7<-read_csv("Data/Agaricia.csv")
 View(data7)
 
@@ -161,3 +183,300 @@ ggplot(data=logdata,aes(x=logweight))+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))+
   ggsave("Output/PS2_7b.png")
+
+
+###############
+# Question 8
+###############
+
+# Estimate the mean ± 95% CI of the untransformed data sample by resampling the data with bootstrapping (just use 1000 resamplings)
+
+data8<-read_csv("Data/Agaricia.csv")
+View(data8)
+
+#resample the mean of our sample population over and over,
+#leaving one data point out each time
+bootmeans<-replicate(1000, { #this tells R I want it to do the same thing 1000 times; open brackets start a function  
+  samples<-sample(data8$weight,replace=TRUE); #this will take a subsample of our original data, with replacement every subsample
+  mean(samples)  }) #take the mean of the subsample
+
+#Now you have 1000 different estimates of the mean, based on your 1000 random samples
+bootmeans
+
+#We can just take the mean of our bootstrapped means to get
+mean(bootmeans) #the more bootstrapped samples we use, the closer to the population mean we should get
+
+#You could calculate the confidence interval just as we have before.
+#With bootstraps, it's nice because if we sort our samples in order, then exactly one of your values represents the upper and lower 95% confidence limit
+#To sort your bootstrapped means:
+sortedboots<-sort(bootmeans)
+
+#Now our 1000 means are sorted in order. If we'd done 1000 bootstraps, then the 25th value would be the lower CL and the 975th sample would be the upper CL
+lowCI<-sortedboots[25]
+highCI<-sortedboots[975]
+lowCI
+highCI
+
+hist(sortedboots,
+     main="",
+     xlab="Bootstrapped Mean Weights of Agaricia agaricites (g)",
+     ylab="Frequency Distribution of Estimates",
+     ylim=c(0,200))
+#To add vertical lines for the two confidence limits
+abline(v=lowCI, col="blue")
+abline(v=highCI, col="blue")
+
+
+###############
+# Question 9
+###############
+
+data9<-read_csv("Data/BarnacleRecruitment.csv")
+
+# separate into two dataframes based on Site
+data9_bay<-data9%>%
+  filter(Site=="bay")
+data9_ocean<-data9%>%
+  filter(Site=="openocean")
+
+# assess bay normality and homoscedasticity with raw data
+var(data9_bay$recruitment, na.rm=TRUE) # variance = 49.65
+length(data9_bay$recruitment) # n = 30
+skewness(data9_bay$recruitment) # 2.451
+kurtosis(data9_bay$recruitment) # 9.586
+qqp(data9_bay$recruitment, "norm") # non-normal
+hist(data9_bay$recruitment)
+# assess open ocean normality and homoscedasticity
+var(data9_ocean$recruitment, na.rm=TRUE) # variance = 35.90
+length(data9_ocean$recruitment) # n = 30
+skewness(data9_ocean$recruitment) # -0.107
+kurtosis(data9_ocean$recruitment) # 2.135
+qqp(data9_ocean$recruitment, "norm") # appears normal
+hist(data9_ocean$recruitment)
+
+################ log-transformation
+data9<-read_csv("Data/BarnacleRecruitment.csv")
+data9<-data9%>%
+  mutate(log=log(recruitment))
+
+data9_bay<-data9%>%
+  filter(Site=="bay")
+data9_ocean<-data9%>%
+  filter(Site=="openocean")
+
+#qqp(data9_bay$log, "norm") 
+hist(data9_bay$log) 
+#qqp(data9_ocean$log, "norm") 
+hist(data9_ocean$log) 
+
+################ square-root transformation
+data9<-data9%>%
+  mutate(sqrt=sqrt(recruitment+0.5))
+
+data9_bay<-data9%>%
+  filter(Site=="bay")
+data9_ocean<-data9%>%
+  filter(Site=="openocean")
+
+qqp(data9_bay$sqrt, "norm") 
+hist(data9_bay$sqrt) 
+qqp(data9_ocean$sqrt, "norm") 
+hist(data9_ocean$sqrt) 
+
+################ arcsine transformation
+data9<-data9%>%
+  mutate(arcsin=asin(sqrt(recruitment)))
+# NA's produced
+data9_bay<-data9%>%
+  filter(Site=="bay")
+data9_ocean<-data9%>%
+  filter(Site=="openocean")
+
+qqp(data9_bay$arcsin, "norm") 
+hist(data9_bay$arcsin) 
+qqp(data9_ocean$arcsin, "norm") 
+hist(data9_ocean$arcsin) 
+
+# plot boxplots of data9
+ggplot(data9, aes(y=recruitment,group=Site))+
+  geom_boxplot()
+ggplot(data9, aes(y=log,group=Site))+
+  geom_boxplot()
+ggplot(data9, aes(y=sqrt,group=Site))+
+  geom_boxplot()
+
+# homogeneity of variance: 2x different from each other, probably okay, 3x different from each other, probably a little high
+
+# Make a bar graph of mean # of barnacle recruits in the two habitats.  Include error bars that show SEM. 
+# mean recruitment and SE
+data9_sum<-data9%>%
+  dplyr::select(Site,recruitment)%>%
+  group_by(Site)%>%
+  summarise(mean=mean(recruitment,na.rm=TRUE), se=sd(recruitment,na.rm=TRUE)/sqrt(length(recruitment)))
+
+ggplot(data9_sum, aes(x=Site,y=mean,group=Site))+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+        plot.title = element_text(hjust = 0.5))+
+  geom_bar(stat="identity", position="dodge", size=0.6) + #determines the bar width
+  geom_errorbar(aes(ymax=mean+se, ymin=mean-se), stat="identity", position=position_dodge(width=0.9), width=0.1) + #adds error bars
+  labs(x="Sample Site", y="Barnacle Recruitment (new recruits 4cm-2)")+ #labels the x and y axes
+  ggsave("Output/PS2_9.png")
+
+############### t-test using the log transformed data
+# calculating 'by hand' (sans functions)
+
+# Show the formula you used to calculate t, 
+# give the means and SD, show the pooled variance, 
+# and give the t value. 
+# Interpret the statistical meaning (is P < or < 0.05?) 
+
+data9<-read_csv("Data/BarnacleRecruitment.csv")
+
+data9_bay<-data9%>%
+  filter(Site=="bay")
+data9_ocean<-data9%>%
+  filter(Site=="openocean")
+
+View(data9)
+
+#two-sample t-test
+y1<-mean(data9_bay$recruitment)
+y2<-mean(data9_ocean$recruitment)
+
+n1<-length(data9_bay$recruitment)
+n2<-length(data9_ocean$recruitment)
+
+var1<-(sum((data9_bay$recruitment-y1)^2))/(n1-1) # s^2 = variance = standard deviation squared
+var2<-(sum((data9_ocean$recruitment-y2)^2))/(n2-1)
+
+#SD
+sqrt(var2)
+
+#calculate t
+t<-(y1-y2)/(sqrt(((((n1-1)*var1)+((n2-1)*var2))/((n1+n2-2)))*((1/n1)+(1/n2))))
+t
+
+#compare
+myt9<-t.test(data9$recruitment~data9$Site)
+myt
+
+#pooled variance
+var.all<-(((((n1-1)*var1)+((n2-1)*var2))/(n1+n2-2))) # using part of the denominator of our t-value calculation
+var.all
+
+# calculate 95% confidence interval to see if t-value is outside that interval, indicating p<0.05
+se<-sqrt(var.all)/(n1+n2)
+se
+#CI<- mean?? +/- 1.96*se
+mean.all<-(y1+y2)/2
+highCI<-mean.all+1.96*se
+lowCI<-mean.all-1.96*se
+highCI
+lowCI
+
+
+###############
+# Question 10
+###############
+
+data10<-read_csv("Data/ProblemSet2_10.csv")
+data10.sum<-data10%>%
+  group_by(Site)%>%
+  summarise(mean=mean(Density),SD=sd(Density))
+data10.sum
+
+
+###############
+# Question 11
+###############
+
+myt11.pooled.var<-t.test(data10$Density~data10$Site, var.equal=TRUE) # student's t uses pooled variance
+myt11.separate.var<-t.test(data10$Density~data10$Site) # welch's t uses separate variance
+
+myt11.pooled.var
+myt11.separate.var
+
+var.11<-data10%>%
+  group_by(Site)%>%
+  summarise(var(Density))
+var.11
+
+
+###############
+# Question 12
+###############
+
+# graph the data
+# Show means and standard error of the mean (SEM)
+
+data10<-read_csv("Data/ProblemSet2_10.csv")
+data10.se<-data10%>%
+  group_by(Site)%>%
+  summarise(mean=mean(Density),SE=sd(Density)/sqrt(length(Density)))
+data10.se
+
+ggplot(data10.se, aes(x=Site, y=mean)) + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+        plot.title = element_text(hjust = 0.5))+
+  geom_bar(stat="identity", position="dodge", size=0.6) + #determines the bar width
+  geom_errorbar(aes(ymax=mean+SE, ymin=mean-SE), stat="identity", position=position_dodge(width=0.9), width=0.1) + #adds error bars
+  labs(x="Sample Substrate Type", y="Urchin Densities (# per m-2)") + #labels the x and y axes
+  scale_fill_manual(values=c("Bottom"="blue","Top"="blue"))+ #fill colors for the bars
+  ggsave("Output/PS2_11.png")
+
+
+
+
+###############
+# Question 13
+###############
+
+data13<-read_csv("Data/CoastBuckwheat.csv")
+myt13<-t.test(data13$Density,mu=4)
+myt13
+
+data13.sum<-data13%>%
+  summarise(label="",mean=mean(Density),se=sd(Density)/sqrt(length(Density)),highCI=mean+1.96*se, lowCI=mean-1.96*se)
+data13.sum
+
+mu<-4
+
+ggplot(data13.sum, aes(x=label, y=mean))+
+  geom_bar(stat="identity", position="dodge", size=0.6) + #determines the bar width
+  geom_hline(yintercept=4, color="black")+
+  geom_errorbar(aes(ymax=highCI, ymin=lowCI), stat="identity", position=position_dodge(width=0.9), width=0.1) + #adds error bars
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+        plot.title = element_text(hjust = 0.5))+
+  labs(x="Coast Buckwheat", y="Mean Density (# buckwheat per 25m-2)")+ #labels the x and y axes
+  ggsave("Output/PS2_13.png")
+
+
+
+######################
+# p + geom_hline(yintercept=4, color="black") # for ggplot
+# baseR: abline(h=4, lty=2)
+
+
+
+###############
+# Question 14
+###############
+
+data14<-read_csv("Data/RunTimes.csv")
+View(data14)
+
+myt14<-t.test(data14$Water, data14$Sportsdrink, paired=TRUE)
+myt14
+
+data14.long<-data14%>%
+  pivot_longer(cols=c(Water,Sportsdrink), names_to="group", values_to="values")
+data14.long
+
+data14.long%>%
+  group_by(group)%>%
+  summarise(mean(values), se=sd(values)/length(values))
+
+
