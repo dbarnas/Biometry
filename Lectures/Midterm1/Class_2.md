@@ -59,7 +59,7 @@ Standardizing curves
 
 **Descriptive statistics**
 - Estimation: determing the parameters (for normal: mean and sd) of a frequency distribution
-- statistics of location - position of the curve (based on mean)
+- **statistics of location** - position of the curve (based on mean)
   - mean
     - arithmetic mean (i.e., the average)
     - weighted average (can assign weight/importance to certain data points and then instead of dividing by N we divide by the sum of all the weights)
@@ -77,7 +77,7 @@ Standardizing curves
     - mean often preferred (uses all the data, but affected by outliers)
     - ordinal (ranked) data: median better than mode
     - skewed distributions: median may be better than mean
-- statistics of dispersin - width/breadth of the curve (based on sd)
+- **statistics of dispersin** - width/breadth of the curve (based on sd)
   - range = max - min
     - quick and easy, but uses very little information about the dataset
   - better used to tell us how variable are the data - how far away are the data from the mean?

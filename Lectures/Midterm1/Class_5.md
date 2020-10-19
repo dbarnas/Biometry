@@ -9,7 +9,7 @@ Confidence:
 - As sample size (n) increases, the means of samples drawn from a population of any distribution approach the normal distribution
 - the distribution of many means will always be a normal distribution (works with larger sample sizes)
 - if the sample size is really large, if we took a bunch of means of our samples, we would get a normal distribution of means
-  - and we can use that distribution of means to make inferences now that was have a normal distribution (even if our original data not averages wasn't normally distributed)
+  - and we can use that distribution of means to make inferences now that we have a normal distribution (even if our original data not averages wasn't normally distributed)
 - at the center of our normal distribution of means should lie the population mean
   - we know then that if we take the 95% confidence interval of our sample mean, there's a 95% chance of our population mean being within that range
 - if we take the standard devaition of those means, we get our standard error
@@ -45,6 +45,12 @@ Confidence:
 - get all the deviates, square the deviates, sum the squared deviates (sum of squares), out of all the possible means, the mean where the sum of squares is the least (the minimum), is our OLS mean
 - identifies parameter estimate that minimizes the sum of squared differences between each value in a sample and the parameter
 - to get the range of sum of squares, you use every possible mean of your sample (within your range) to get each set of deviates to square and sum. 
+- we can try all the means, and the one that is the most likely population mean is the one with the lowest sum of squared deviates/ minimum squared deviates
+  - take all possible means
+  - calculate the squared deviates
+  - where the sum of squares is minimized is where half the data is on one side of the mean and half the data is on the other side
+  - so i think to get OLS, you would use every number within your data range as a "mean" estimate and then you'd get deviations from each mean, which is why on the parabola you have those super far away points, because most of the data isn't going to be that close to the most extreme low and high value, but at one particular number/mean, the data will be close enough to have that minimum value. so when we graph the regression line, we're basically plotting the residuals (i think) and drawing a straight line through those residuals to get our slope. and with that ols mean, we're assuming the residuals will be minimized for each data point or at least the data set so our slope is the most representative of our data
+  - and residuals = deviations
 
 **Maximum Likelihood (ML)**
 - does not assume a normal distribution
@@ -75,16 +81,25 @@ The above methods help you put confidence limits on your sample mean in relation
 - if we say p < 0.05, there is a small chance we made a type I error. but if we say p < 0.0001, there is a very tiny small chance we made a type I error
 
 **One vs Two-tailed tests**
-- Two-tailed: type i errors could be in the 2.5% low end or 2.5% high end
+- Two-tailed: type I errors could be in the 2.5% low end or 2.5% high end
   - use unless you have a priori reason to expect one-tail
-- One-tailed: when there's no way the type i error could be in one of the tails, we assume the 5% error is at one of the tails
+- One-tailed: when there's no way the type I error could be in one of the tails, we assume the 5% error is at one of the tails
   - much less common
 
 **Type II Error**
-- beta = type ii error rate
+- beta = type II error rate
 - trade-off between alpha and beta
 - less commonly reported
 - if we accept the null, how sure are we about that result, especially if there are important consequences?
+
+**Power of a test**
+- power = probability that we correctly accept the alternate hypothesis Ha
+- power = 1 - beta
+- decreasing alpha increases beta and thus decreases power
+- p (probability) (type I error: rejecting H0 when we shouldn't) = alpha
+  - by convention, alpha = 0.05 (5%)
+- beta = type II error rate: accepting H0 when we shouldn't
+
 
 **Guidelines for making and interpreting null hypotheses**
 - Just because we accept something, doens't mean it's true. we have to put a probability on that. we say we failed to reject the null, but doesn't mean the null is true

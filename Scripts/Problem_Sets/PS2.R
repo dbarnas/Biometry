@@ -91,6 +91,7 @@ kurtosis(data3$gonad_pluss5_mult10, na.rm=TRUE)
 ###############
 # Question 4
 ###############
+data1<-read_csv("Data/kelp_bass_gonad_mass.csv")
 
 # Make a histogram of all raw observations (untransformed values) in the kelp bass gonad mass data set
 hist(data1$gonad_mass) # note: 8 bins
@@ -129,6 +130,7 @@ ggplot(data=zdata, aes(x=zscore))+
 ###############
 # Question 6
 ###############
+data1<-read_csv("Data/kelp_bass_gonad_mass.csv")
 
 # Use the original kelp bass gonad data to create a Normal Probability Plot
 #to get probability plot
@@ -136,8 +138,8 @@ qqnorm(data1$gonad_mass)
 qqline(data1$gonad_mass)
 
 #To make a probability plot with confidence intervals
-library(car)
-library(MASS)
+#library(car)
+#library(MASS)
 
 # gives a 'buffer of concern' to show how far off the line our data can be to still be considered normal
 # can do for multiple distributions. in this case "norm" = normal distribution
@@ -233,6 +235,11 @@ abline(v=highCI, col="blue")
 
 data9<-read_csv("Data/BarnacleRecruitment.csv")
 
+#test homogeneity of variance
+bartlett.test(recruitment~Site, data=data9) #If P>0.05, then variances are equal
+#test normality
+shapiro.test(data9$recruitment) #If P>0.05, then the data is normal
+
 # separate into two dataframes based on Site
 data9_bay<-data9%>%
   filter(Site=="bay")
@@ -256,54 +263,57 @@ hist(data9_ocean$recruitment)
 
 ################ log-transformation
 data9<-read_csv("Data/BarnacleRecruitment.csv")
-data9<-data9%>%
-  mutate(log=log(recruitment))
+data9.log<-data9%>%
+  mutate(log=log(recruitment+0.5))
+
+#test homogeneity of variance
+bartlett.test(log~Site, data=data9.log)
+#test normality
+shapiro.test(data9.log$log)
 
 data9_bay<-data9%>%
   filter(Site=="bay")
 data9_ocean<-data9%>%
   filter(Site=="openocean")
 
-#qqp(data9_bay$log, "norm") 
 hist(data9_bay$log) 
-#qqp(data9_ocean$log, "norm") 
 hist(data9_ocean$log) 
 
 ################ square-root transformation
-data9<-data9%>%
+data9.sqrt<-data9%>%
   mutate(sqrt=sqrt(recruitment+0.5))
 
-data9_bay<-data9%>%
+#test normality and homogeneity of variance
+bartlett.test(sqrt~Site, data=data9.sqrt)
+#test normality
+shapiro.test(data9.sqrt$sqrt)
+
+data9_bay<-data9.sqrt%>%
   filter(Site=="bay")
-data9_ocean<-data9%>%
+data9_ocean<-data9.sqrt%>%
   filter(Site=="openocean")
 
-qqp(data9_bay$sqrt, "norm") 
 hist(data9_bay$sqrt) 
-qqp(data9_ocean$sqrt, "norm") 
 hist(data9_ocean$sqrt) 
 
+
 ################ arcsine transformation
-data9<-data9%>%
-  mutate(arcsin=asin(sqrt(recruitment)))
+data9.arc<-data9%>%
+  mutate(arcsin=asin(sqrt(recruitment+0.5)))
+
+#test normality and homogeneity of variance
+bartlett.test(arcsin~Site, data=data9.arc)
+#test normality
+shapiro.test(data9.arc$arcsin)
+
 # NA's produced
 data9_bay<-data9%>%
   filter(Site=="bay")
 data9_ocean<-data9%>%
   filter(Site=="openocean")
 
-qqp(data9_bay$arcsin, "norm") 
 hist(data9_bay$arcsin) 
-qqp(data9_ocean$arcsin, "norm") 
 hist(data9_ocean$arcsin) 
-
-# plot boxplots of data9
-ggplot(data9, aes(y=recruitment,group=Site))+
-  geom_boxplot()
-ggplot(data9, aes(y=log,group=Site))+
-  geom_boxplot()
-ggplot(data9, aes(y=sqrt,group=Site))+
-  geom_boxplot()
 
 # homogeneity of variance: 2x different from each other, probably okay, 3x different from each other, probably a little high
 
@@ -332,6 +342,8 @@ ggplot(data9_sum, aes(x=Site,y=mean,group=Site))+
 # Interpret the statistical meaning (is P < or < 0.05?) 
 
 data9<-read_csv("Data/BarnacleRecruitment.csv")
+data9<-data9%>%
+  mutate(sqrt=sqrt(recruitment))
 
 data9_bay<-data9%>%
   filter(Site=="bay")
@@ -341,16 +353,17 @@ data9_ocean<-data9%>%
 View(data9)
 
 #two-sample t-test
-y1<-mean(data9_bay$recruitment)
-y2<-mean(data9_ocean$recruitment)
+y1<-mean(data9_bay$sqrt)
+y2<-mean(data9_ocean$sqrt)
 
-n1<-length(data9_bay$recruitment)
-n2<-length(data9_ocean$recruitment)
+n1<-length(data9_bay$sqrt)
+n2<-length(data9_ocean$sqrt)
 
-var1<-(sum((data9_bay$recruitment-y1)^2))/(n1-1) # s^2 = variance = standard deviation squared
-var2<-(sum((data9_ocean$recruitment-y2)^2))/(n2-1)
+var1<-(sum((data9_bay$sqrt-y1)^2))/(n1-1) # s^2 = variance = standard deviation squared
+var2<-(sum((data9_ocean$sqrt-y2)^2))/(n2-1)
 
 #SD
+sqrt(var1)
 sqrt(var2)
 
 #calculate t
@@ -358,22 +371,12 @@ t<-(y1-y2)/(sqrt(((((n1-1)*var1)+((n2-1)*var2))/((n1+n2-2)))*((1/n1)+(1/n2))))
 t
 
 #compare
-myt9<-t.test(data9$recruitment~data9$Site)
-myt
+myt9<-t.test(data9$sqrt~data9$Site)
+myt9
 
 #pooled variance
 var.all<-(((((n1-1)*var1)+((n2-1)*var2))/(n1+n2-2))) # using part of the denominator of our t-value calculation
 var.all
-
-# calculate 95% confidence interval to see if t-value is outside that interval, indicating p<0.05
-se<-sqrt(var.all)/(n1+n2)
-se
-#CI<- mean?? +/- 1.96*se
-mean.all<-(y1+y2)/2
-highCI<-mean.all+1.96*se
-lowCI<-mean.all-1.96*se
-highCI
-lowCI
 
 
 ###############
@@ -385,6 +388,11 @@ data10.sum<-data10%>%
   group_by(Site)%>%
   summarise(mean=mean(Density),SD=sd(Density))
 data10.sum
+
+#test homogeneity of variance
+bartlett.test(Density~Site, data=data10) #If P>0.05, then variances are equal
+#test normality
+shapiro.test(data10$Density) #If P>0.05, then the data is normal
 
 
 ###############
@@ -434,6 +442,10 @@ ggplot(data10.se, aes(x=Site, y=mean)) +
 ###############
 
 data13<-read_csv("Data/CoastBuckwheat.csv")
+
+#test normality
+shapiro.test(data13$Density) #If P>0.05, then the data is normal
+
 myt13<-t.test(data13$Density,mu=4)
 myt13
 
@@ -475,8 +487,11 @@ data14.long<-data14%>%
   pivot_longer(cols=c(Water,Sportsdrink), names_to="group", values_to="values")
 data14.long
 
+#test homogeneity of variance
+bartlett.test(values~group, data=data14.long) #If P>0.05, then variances are equal
+#test normality
+shapiro.test(data14.long$values) #If P>0.05, then the data is normal
+
 data14.long%>%
   group_by(group)%>%
-  summarise(mean(values), se=sd(values)/length(values))
-
-
+  summarise(mean(values), se=sd(values)/sqrt(length(values)))

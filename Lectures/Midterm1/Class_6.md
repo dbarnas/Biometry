@@ -94,7 +94,7 @@ On an exam: he will likely just present us with an experimental design, and then
   - r = 0: no correlation
   - r = 1: perfectly positively correlated
   - r = -1: perfectly negatively correlated
-- what is the degree of association, or covariance (how closely they co-vary), between 2 variables?
+- what is the degree of association, or covariance (how closely they co-vary), between 2 variables? Effect Size
   - both variables are continuous
 - correlation vs. regression 
   - regression: tests for/implies causation
@@ -115,8 +115,6 @@ Spearman's rho
 - rank all x values and rank all y values
 - for each pair, doing covariance between ranks (vs between the actual data points)
 - checks if the ranking of x matches the ranking of y
-
-
 
 Kentall's tau
 - looks at every pair, and asks if each pair is concordant (if x>y in one pair, is x>y in the next pair? if yes then concordant pair) or discordant (if x>y in one pair, but x<y in the next pair, then discordant pair)
