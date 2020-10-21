@@ -15,14 +15,19 @@ subtitle: "October 22, 2020"
 - [F Ratio Statistic](#fratio)
 - [Fixed and Random Factors](#factors)
 - [One-Way ANOVA](#onewayanova)
+- [Nested ANOVA](#nested-anova)
+- [Mixed Models ANOVA](#mixed-model-anova)
+- [ANCOVA](#ancova)
 - Coding
   - [Correlation Tests](#correlation)
     - [Pearson's R](#PearsonR)
     - [Spearman's Rho](#SpearmanRho)
     - [Kendall's Tau](#KendallTau)
-  - [Outlier Test](#outliertest)
-  - [Regression](#regression)
+  - [Outlier Bonferonni Test](#outliertest)
+  - [Coding Regression](#code-regression)
   - [Coding Multiple Regression](#code-multipleregression)
+  - [Model I and Model II Regression](#modelIIreg)
+  - [Model Selection, AIC](#model-selection)
   - [Two-Way ANOVA](#twowayanova)
   - [Running/Coding ANOVA](#runningANOVA)
 
@@ -161,6 +166,42 @@ R portion of Exam:
 - Total
   - df = pn-1
 
+**Nested ANOVA** <a name=nested-anova></a>
+- used to account for subsamples nested within replicates
+- if nesting is not acknowledged, these designs are pseudoreplicated
+- when all levels of one factor are not present in all levels of another factor
+- usually random factors
+- Partitioning Total Variation
+  - SS-A: variation among A means
+  - SS-B(A): variation among B means within each level of A
+  - SS-residual: variation among replicates within each B(A)
+- if you have nested factors within your treatment, you need to replicate the nested factor, not the subsamples
+- will want to know
+  - variance at each level (variance componenets)
+  
+**Nested ANOVA Table**
+- Factor A
+  - SS-A = pq * sum of ((group mean - grand  mean)^2)
+  - df = p-1
+  - MS-A = SS-A / (p-1)
+  - F = MS-A / MS-B(A)
+- Factor B
+  - SS-B(A) = q * sum of each group's sum of ((data point - group mean)^2)
+  - df = p(q-1)
+  - MS-B(A) = SS-B(A) / (p(q-1))
+  - F = MS-B(A) / MS-residual
+- Residual
+  - SS = sum of each group's sum of ((data point - nested group mean)^2)
+  - df = pq(n-1)
+  - MS = SS-resid / (pq(n-1))
+  
+**Mixed Model ANOVA** <a name=mixed-model-anova></a>
+
+
+**ANCOVA** <a name=ancova></a>
+- ANCOVA
+- Categorical and continuous predictor variables
+
 **Other approaches**
 - Tests that allow unequal variances
   - Welch's test, Wilcox Z Test
@@ -209,9 +250,20 @@ library(car)
 model1<-lm(Bush~Buchanan, data=mydata)
 outlierTest(model1)
 ```
+- Cook's D for leverage
+  - Points greater than 0.1 are potential outliers
+```{r}
+influencePlot(model1)
+#or simply
+plot(model1, 4)
 
-<a name=regression></a>
-**Regression** (Lecture 7)
+#or more complex
+cutoff <- 4/((nrow(mydata)-length(model1$coefficients)-2)) 
+plot(model1, which=4, cook.levels=cutoff) 
+```
+
+<a name=code-regression></a>
+**Coding Regression**
 - one or more predictor (independent) variable(s), X
 - one response (dependent) variable, Y
 - F ratio
@@ -226,12 +278,16 @@ outlierTest(model1)
     - r2 = square of correlation coefficient, r
     - SS total = SS-reg + SS-resid
     - r2 = SS-reg / SS-total
-- Before we can fit a regression line, we need to describe the model
-  - is the data linear?
-```{r}
-plot(NumberSpp~Biomass, data=data4, col="blue", xlab="Biomass (mg/m2)", ylab="Species Richness")
-abline(model4, col="blue") #adds fit from the model
 
+1. Create the model
+    1. Before we can fit a regression line, we need to describe the model
+1. Check linearity
+```{r}
+plot(NumberSpp~Biomass, data=data4) #, col="blue", xlab="Biomass (mg/m2)", ylab="Species Richness")
+abline(model4, col="blue") #adds fit from the model
+```
+1. Check assumptions
+```{r}
 # diagnostic plots
 plot(model)
 
@@ -241,7 +297,9 @@ qqp(residuals(model))
 
 # homogeneity of variance using box plot
 boxplot(residuals(model)~mydata$Nitrogen)
-
+```
+1. Check for outliers and high leverage points
+```{r}
 #Check for outliers using Bonferonni Test:
 outlierTest(model)
 
@@ -250,22 +308,24 @@ outlierTest(model)
 plot(model,4)
 # or
 influencePlot(model) #Points greater than 1 are potential outliers
-
-# Finally, to test whether this model is significant
-# F test: Get R2 value, F, df, and p for goodness of fit of the model
+```
+1. test model significance
+    1. F test: Get R2 value, F, df, and p for goodness of fit of the model
+```{r}
+summary(model)
 # Estimate = slope
 # gives t value and p value for each predictor variable
-summary(model)
 ```
 
 <a name=code-multipleregression></a>
 **Coding Multiple Regression**
-
+1. Create the full model
+    1. First we want to know which model fits the data best
 ```{r}
-#First we want to know which model fits the data best. Here's the full model:
 fullmodel<-lm(krat_density~shrubcover+seedproduction+snakedensity, data=mydata)
-
-#To check for collinearity in your data:
+```
+1. Check for collinearity in your data
+```{r}
 library(GGally)
 X<-mydata[,c(2,3,4)] #gives you just columns 2,3,4
 ggpairs(X)
@@ -273,9 +333,10 @@ ggpairs(X)
 #To get actual numbers on collinearity better test:
 library(mctest)
 imcdiag(fullmodel)
-# Collinearity problem
-
-#Get the AIC value for this model
+```
+1. Get AIC for model and reduced models
+    1. Want to choose simpler models (that doesn't have collinearity problems) - lowest AIC value
+```{r}
 AIC(fullmodel)
 
 #Now let's make every other possible model:
@@ -286,32 +347,30 @@ reduced3<-lm(krat_density~seedproduction+snakedensity, data=mydata)
 #We also have the simple models (single regressions). Let's get the AIC value for each model:
 AIC(fullmodel)
 AIC(reduced1)
-#etc.
-
-#we want to choose simpler models (that doesn't have collinearity problems) (And reduced2 is slightly better fit too)
+AIC(reduced2)
+AIC(reduced3)
+```
+1. Check assumptions
+```{r}
+plot(reduced2) #homogeneity of variances of the model
+library(car)
+qqp(residuals(reduced2)) #normality
+```
+1. Test model significance or get ANOVA table
+```{r}
 summary(reduced2)
 
 # Traditional ANOVA table, if you like that output better
 # Gives F tests instead of t and gives df
 anova(reduced2)
-
-#check for homogeneity of variances of the model
-plot(reduced2)
-#And check normality
-library(car)
-qqp(residuals(reduced2))
-
-#To get the partial standardized regression coefficients for each factor
+```
+1. Get the partial standardized regression coefficients for each factor
+    1. Sign doesn't matter. just value from 0 to 1 for effect size/importance of predictor variable
+```{r}
 library(QuantPsyc)
 lm.beta(reduced2)
-# sign doesn't matter. just value from 0 to 1 for effect size/importance of predictor variable
 ```
-
-**Checks for collinearity**
-```{r}
-
-```
-
+<a name=modelIIreg></a>
 **Model I and Model II Regression**
 - Model I
   - measured without error. you chose specific values of X (i.e. fixed)
@@ -329,7 +388,7 @@ library(lmodel2)
 model1<-lmodel2(area~height, range.y="relative", range.x="relative", data=mydata, nperm=99)
 model1 #Use these parameters (from RMA) to get estimates of slope and intercept
 ```
-
+<a name=model-selection></a>
 **Model Selection**
 - AIC (Akaike's Information Criterion)
   - takes the natural log of L (our likelihood) times 2, subtracted from double the number of parameters
@@ -339,7 +398,9 @@ model1 #Use these parameters (from RMA) to get estimates of slope and intercept
     - can compare a model of 2 parameters to a model of 10 parameters and see if our model is stronger. AIC takes into account (penalizes  you for) more parameters in your model
 
 ```{r}
-
+AIC(fullmodel)
+AIC(reduced1)
+AIC(reduced2)
 ```
 
 <a name=runningANOVA></a>
@@ -349,35 +410,42 @@ model1 #Use these parameters (from RMA) to get estimates of slope and intercept
 #Need to make Treatment a factor
 mydata$Treatment<-as.factor(mydata$Treatment)
 ```
-1. Check if data is balanced
+1. Check if data are balanced
 ```{r}
 summary(mydata)
 ```
 1. Create model
 ```{r}
+# One-way and Two-way Fixed Factor ANOVA
 model<-aov(seed.mass~Treatment, data=mydata)
 # or
 model<-lm(seed.mass~Treatment, data=mydata)
-# or 
+
+# Random Factor and Mixed Model ANOVA
 library(lme4)
 library(lmerTest)
 model<-lmer(seed.mass~Treatment + (1|random), data=mydata) # for random factors in two or more way anova's
+# fixed: treatment
+# random: random
 
 # Nested ANOVA
-model2<-lmer(Calyxarea~(Genotype) + (1|Ramet:Genotype), data=mydata)
+model2<-lmer(Calyxarea~Genotype + (1|Ramet:Genotype), data=mydata)
+# fixed: genotype
+# nested: ramet within genotype
 
 # Two-Way Fixed Factor ANOVA
 model1<-lm(growth~Temperature + CO2 + Temperature:CO2, data=mydata)
-#A shortcut to writing the same thing:
+# Shortcut to writing the same thing:
 model1<-lm(growth~Temperature*CO2, data=mydata)
 
 # Repeated Measures ANOVA (for time as a fixed factor)
 model<-lmer(FvFm ~ temperature*day + (1|temperature:coral), data=data4) 
+# fixed: temperature, day
+# random: coral nested in temperature because different corals used in different treatments
 
 # ANCOVA
-# categorical and continuous predictor variables
 model1<-lm(Weight ~ TidalHeight * Length, data=mydata)
-#Remember that you also want to make sure that the relationship with covariate is linear
+# Make sure that the relationship with covariate is linear
 plot(Weight~Length, data=mydata)
 #You can stop right there if you want, but if you wanted to go further and do model selection
 #Interaction term is highly non-significant, so you might want to do model selection and decide whether or not to drop it
@@ -389,9 +457,7 @@ AIC(model2)
 1. Check assumptions of data and transform if necessary
 ```{r}
 plot(model) # first option to look for spread less than 3x for any group
-plot(residuals(model5)) # another option, look for no pattern
 library(car)
-
 qqp(residuals(model), "norm") #When we're using lmer, we have to do the probability plot ourselves
 ```
 1. Likelihood Ratio Test
@@ -406,17 +472,16 @@ anova(model5, model5b)
 
 
 # ANCOVA
-# If you wanted to go further and do model selection
-#Interaction term is highly non-significant, so you might want to do model selection and decide whether or not to drop it
-#Let's look at AIC with and without
+model1<-lm(Weight ~ TidalHeight * Length, data=mydata)
 model2<-lm(Weight ~ TidalHeight + Length, data=mydata)
 AIC(model1)
 AIC(model2)
 ```
 1. Check results of ANOVA
 ```{r}
-#To get results of ANOVA
-anova(model2)
+anova(model2) # balanced data, fixed factor models
+
+Anova(model, type="III") # unbalanced data and mixed models
 ```
 1. Get variance components
   1. Run all factors as random factors
