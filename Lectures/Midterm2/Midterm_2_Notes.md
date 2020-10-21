@@ -1,20 +1,30 @@
 ---
 title: "Midterm 2"
-output: html_document
+subtitle: "October 22, 2020"
 ---
 
 ## Biometry Midterm 2
 
 **Contents:**
+- [General Linear Models](#glm)
+  - [Regression basics](#reg-basics)
+    - [calculate regression by hand](#reg-by-hand)
+    - [regression F test, analysis of variance](#reg-analysis-of-variance)
+  - [Multiple Regression basics](#multiple-regression)
+  - [ANOVA basics](#anova-basics)
+- [F Ratio Statistic](#fratio)
 - [Fixed and Random Factors](#factors)
 - [One-Way ANOVA](#onewayanova)
-- [F Ratio Statistic](#fratio)
-- [Correlation Tests](#correlation)
-- [Outlier Test](#outliertest)
-- [Regression](#regression)
-- [Multiple Regression](#multipleregression)
-- [Two-Way ANOVA](#twowayanova)
-- [Running/Coding ANOVA](#runningANOVA)
+- Coding
+  - [Correlation Tests](#correlation)
+    - [Pearson's R](#PearsonR)
+    - [Spearman's Rho](#SpearmanRho)
+    - [Kendall's Tau](#KendallTau)
+  - [Outlier Test](#outliertest)
+  - [Regression](#regression)
+  - [Coding Multiple Regression](#code-multipleregression)
+  - [Two-Way ANOVA](#twowayanova)
+  - [Running/Coding ANOVA](#runningANOVA)
 
 
 Lecture Portion of Exam:
@@ -24,15 +34,99 @@ R portion of Exam:
 - Regression up through ANCOVA and Mixed Models (what was on PS5)
 
 
-
-**General Linear Model**
+<a name=glm></a>
+**General Linear Models**
 - Regression
-  - 1 continuous response variable
-  - 1 continuous predictor variable
+- Multiple Regression
 - ANOVA
-  - 1 continuous response variable
-  - # categorical predictor variable(s) = factor(s)
-  - tests whether measn differ (like t-test but with more than 2 means)
+
+**Regression** <a name=reg-basics></a>
+- 1 continuous response variable
+- 1 continuous predictor variable
+- y = beta-0 + (beta-1)(x) + error
+- Purposes:
+  - Description: relationship between Y and X
+  - Explaination: How much variatino in Y is explained by linear relationship with X
+  - Prediction: predict new Y-values from new X-values & determine precision of those estimates
+- Linear Regression by hand <a name=reg-by-hand></a>
+   1. calculate mean values of x and y
+   1. calculate deviations from means of x and y (xi - x-bar) and (yi - y-bar)
+   1. calculate xy deviation cross-products (xi - x-bar)*(yi - y-bar)
+   1. calculate slope (beta-1) sum(deviation cross products) / sum of squares for x
+   1. solve for the intercept (beta-0) y-bar = beta-0 + (beta-1)(x-bar) -> beta-0 = y-bar - (beta-1)(x-bar)
+   1. based on the slope and intercept, calculate yi-hat (predicted y) values for each x
+   1. hypothesis test with F-ratio = MS-model / MS-error, MS = SS/df = variance
+      1. null hypothesis: slope = 0
+   1. Ordinary Least Squares
+      1. SS(yi-hat - y-bar) + SS(yi - yi-hat)
+      1. the line that is, on average, closest to all points in the sample
+      1. minimizes sum of swuared deviations
+   1. Analysis of Variance <a name=reg-analysis-of-variance></a>
+      1. Regression: SS = sum((yi-hat - y-bar)^2), df = 1, variance = Mean Square = SS/1
+      1. Residual: SS = sum((yi - yi-hat)^2), df = n-2, variance = MS = SS/(n-2)
+   1. F = MSregression / MSresidual
+      1. if MSreg >> MSresid -> variation explained by regression >> variation explained by error -> F ratio >> 1
+   1. r2, coefficient of determination, measures explained variation
+      1. r2 = SSregression / SStotal
+      1. proportion of variation in Y explained by linear relationship with X
+      1. r2 = square of correlation coefficient
+- Assumptions of Linear Regression
+   1. Normality
+   1. homogeneity of variance
+   1. independence of samples
+   1. linearity between x and y
+- Residuals
+   1. used for examining model assumptions
+   1. yi - yi-hat
+   1. check normality of residuals
+   1. plot residuals against predicted y (yi-hat)
+      1. want no pattern in residuals
+- Leverage
+   1. Cook's D to test if outliers are influential
+
+<a name=multiple-regression></a>
+**Multiple Regression**
+- more variables can reduce unexplained variation
+- smaller residual error produces more powerful tests of each predictor
+- plot residuals of factor A regression vs factor B
+  - there may have been a hidden relationship between factor B and the response variable that was hidden by the effect of factor A
+  - could the the same by opposite for factor B residuals and factor A
+- Hypothesis test: whether overall regression equation is significant
+  - H0: slope = 0
+  - t-tests or F tests (R gives t-tests)
+- Assumptions
+  - normality and homogeneity of variance for response variable
+  - independence of observations
+  - linearity
+  - no collinearity
+    - collinearity = predictors are correlated = unreliable estimates of slopes
+- Checks for collinearity
+  - correlation matrix (visual)
+  - tolerance for each predictor: 1-r2 for regression of that predictor on all others
+  - VIF values (variance inflator factor): 1/tolerance, look for large values (>10)
+
+<a name=anova-basics></a>
+**ANOVA**
+- 1 continuous response variable
+- 1+ categorical predictor variable(s) = factor(s)
+- tests whether means differ (like t-test but with more than 2 means)
+- Assumptions
+  - applied to residuals from linear model
+  - normality
+  - homogeneity of variances
+  - independence
+
+<a name=fratio></a>
+**F Tests/F Statistic**
+- F tests compare explained variation from our model / unexplained variation (residual/error)
+- F statistic is used to get probability that our Explained = Unexplained
+- Null hypothesis: slope = 0
+  - p < 0.05 indicates slope is significantly different from 0 and there is a relationship between X and Y
+- MS = SS / df = variance
+- F = MS1 / MS2
+- % variation explained by elements of model = element's variance / total variance * 100
+- Residuals
+  - difference between observed value and predicted value
 
 <a name=factors></a>
 **Fixed Factor**
@@ -67,12 +161,6 @@ R portion of Exam:
 - Total
   - df = pn-1
 
-**ANOVA assumptions**
-- applied to residuals from linear model
-- normality
-- homogeneity of variances
-- independence
-
 **Other approaches**
 - Tests that allow unequal variances
   - Welch's test, Wilcox Z Test
@@ -85,23 +173,10 @@ R portion of Exam:
 - Permutation Tests
   - PERMANOVA
 
-<a name=fratio></a>
-**F Tests/F Statistic**
-- F tests compare explained variation from our model / unexplained variation (residual/error)
-- F statistic is used to get probability that our Explained = Unexplained
-- Null hypothesis: slope = 0
-  - p < 0.05 indicates slope is significantly different from 0 and there is a relationship between X and Y
-- MS = SS / df = variance
-- F = MS1 / MS2
-- % variation explained by elements of model = element's variance / total variance * 100
-- Residuals
-  - difference between observed value and predicted value
-
 <a name=correlation></a>
 **Correlation Tests**
-- Pearson's R: for linear relationships; calculated on ranks
+- Pearson's R: for linear relationships; calculated on ranks <a name=PearsonR></a>
   - requires normality
-  
 ```{r}
 mytest1<-cor.test(mydata$cryduration, mydata$IQ, method="pearson")
 mytest1
@@ -110,16 +185,13 @@ library(car)
 qqp(mydata$cryduration, "norm")
 qqp(mydata$IQ, "norm")
 ```
-
-- Spearman's rho: nonlinear relationships (non-parametric correlation coefficients); calculated on ranks
+- Spearman's rho: nonlinear relationships (non-parametric correlation coefficients); calculated on ranks <a name=SpearmanRho></a>
   - if data are not normal, could either do a Spearman's rho or could transform data for normality and do Pearson's
 ```{r}
 mytest2<-cor.test(mydata$cryduration, mydata$IQ, method="spearman")
 mytest2
 ```
-
-- Kentall's tau: nonlinear relationships (non-parametric correlation coefficients); concordant and discordant pairs
-
+- Kendall's tau: nonlinear relationships (non-parametric correlation coefficients); concordant and discordant pairs <a name=KendallTau></a>
 ```{r}
 mytest3<-cor.test(mydata$cryduration, mydata$IQ, method="kendall")
 mytest3
@@ -142,15 +214,6 @@ outlierTest(model1)
 **Regression** (Lecture 7)
 - one or more predictor (independent) variable(s), X
 - one response (dependent) variable, Y
-- Purposes:
-  - Description: relationship between Y and X
-  - Explaination: How much variatino in Y is explained by linear relationship with X
-  - Prediction: predict new Y-values from new X-values & determine precision of those estimates
-- Assumptions: 
-  - normality and homogeneity of variance for response variable
-  - independence of observations
-  - linearity between X and Y
-  - no collinearity (for a multiple regression)
 - F ratio
   - Regression: variation in Y explained by regression
     - df = 1
@@ -195,8 +258,8 @@ influencePlot(model) #Points greater than 1 are potential outliers
 summary(model)
 ```
 
-<a name=multipleregression></a>
-**Multiple Regression**
+<a name=code-multipleregression></a>
+**Coding Multiple Regression**
 
 ```{r}
 #First we want to know which model fits the data best. Here's the full model:
@@ -245,7 +308,6 @@ lm.beta(reduced2)
 ```
 
 **Checks for collinearity**
-
 ```{r}
 
 ```
@@ -275,8 +337,6 @@ model1 #Use these parameters (from RMA) to get estimates of slope and intercept
     - k = number of parameters
     - lower values are better fits of the model
     - can compare a model of 2 parameters to a model of 10 parameters and see if our model is stronger. AIC takes into account (penalizes  you for) more parameters in your model
-
-
 
 ```{r}
 
