@@ -28,8 +28,7 @@ library(lmerTest)
 model1<-lmer(root ~ fertilizer + (1|plant) + (1|fertilizer:plant), data=mydata)
 anova(model1)
 
-model2<-lmer(root ~ fertilizer*week + (1|fertilizer/plant), data=mydata) 
-# colon and slash do the same thing. show a nested factor B within A by writing like A/B or A:B
+model2<-lmer(root ~ fertilizer*week + (1|fertilizer:plant), data=mydata) 
 anova(model2)
 
 # time is a categorical factor
