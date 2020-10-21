@@ -17,7 +17,11 @@ output: html_document
 - [Running/Coding ANOVA](#runningANOVA)
 
 
+Lecture Portion of Exam:
+- Will cover multiple regression up through Lecture 15 (power analyses)
 
+R portion of Exam:
+- Regression up through ANCOVA and Mixed Models (what was on PS5)
 
 
 
@@ -30,8 +34,7 @@ output: html_document
   - # categorical predictor variable(s) = factor(s)
   - tests whether measn differ (like t-test but with more than 2 means)
 
-<a name=factors></a>
-**Fixed Factor**
+## Fixed Factor {factors}
 - the factor of interest in our study
 - testing the means to get a p value
 - all levels or groups of interest are used in the study
@@ -285,6 +288,10 @@ model1 #Use these parameters (from RMA) to get estimates of slope and intercept
 #Need to make Treatment a factor
 mydata$Treatment<-as.factor(mydata$Treatment)
 ```
+1. Check if data is balanced
+```{r}
+summary(mydata)
+```
 1. Create model
 ```{r}
 model<-aov(seed.mass~Treatment, data=mydata)
@@ -303,6 +310,20 @@ model1<-lm(growth~Temperature + CO2 + Temperature:CO2, data=mydata)
 #A shortcut to writing the same thing:
 model1<-lm(growth~Temperature*CO2, data=mydata)
 
+# Repeated Measures ANOVA (for time as a fixed factor)
+model<-lmer(FvFm ~ temperature*day + (1|temperature:coral), data=data4) 
+
+# ANCOVA
+# categorical and continuous predictor variables
+model1<-lm(Weight ~ TidalHeight * Length, data=mydata)
+#Remember that you also want to make sure that the relationship with covariate is linear
+plot(Weight~Length, data=mydata)
+#You can stop right there if you want, but if you wanted to go further and do model selection
+#Interaction term is highly non-significant, so you might want to do model selection and decide whether or not to drop it
+#Let's look at AIC with and without
+model2<-lm(Weight ~ TidalHeight + Length, data=mydata)
+AIC(model1)
+AIC(model2)
 ```
 1. Check assumptions of data and transform if necessary
 ```{r}
@@ -321,6 +342,15 @@ anova(model5, model5b)
 # this is the Likelihood Ratio Test. It gives AIC values for both models
 # look for lowest AIC
 # and it gives us a p-value for whether one is a better fit. We COULD technically use that p-value as a hypothesis test for the random effect
+
+
+# ANCOVA
+# If you wanted to go further and do model selection
+#Interaction term is highly non-significant, so you might want to do model selection and decide whether or not to drop it
+#Let's look at AIC with and without
+model2<-lm(Weight ~ TidalHeight + Length, data=mydata)
+AIC(model1)
+AIC(model2)
 ```
 1. Check results of ANOVA
 ```{r}
@@ -426,6 +456,9 @@ graphdata<-as.data.frame(emmeans(model2, ~Genotype))
 
 # Two-Way ANOVA
 graphdata<-as.data.frame(emmeans(model1, ~Temperature*CO2))
+
+# Repeated Measures ANOVA
+graphdata<-as.data.frame(emmeans(model1, ~Temperature:day)) #ignoring the random factor
 ```
 1. Plot emmeans with Tukey letters
 ```{r}
