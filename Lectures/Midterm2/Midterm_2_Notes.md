@@ -13,11 +13,16 @@ subtitle: "October 22, 2020"
   - [Multiple Regression basics](#multiple-regression)
   - [ANOVA basics](#anova-basics)
 - [F Ratio Statistic](#fratio)
-- [Fixed and Random Factors](#factors)
-- [One-Way ANOVA](#onewayanova)
-- [Nested ANOVA](#nested-anova)
-- [Mixed Models ANOVA](#mixed-model-anova)
-- [ANCOVA](#ancova)
+- ANOVA
+  - [Fixed and Random Factors](#factors)
+  - [One-Way ANOVA](#onewayanova)
+  - [Two-Way ANOVA](#twowayanova)
+  - [Nested ANOVA](#nested-anova)
+  - [Mixed Models ANOVA](#mixed-model-anova)
+  - [Repeated Measures ANOVA](#repeated-measures)
+  - [ANCOVA](#ancova)
+- [Variance Component](#varcomp)
+- [Block Design](#block-design)
 - Coding
   - [Correlation Tests](#correlation)
     - [Pearson's R](#PearsonR)
@@ -28,8 +33,12 @@ subtitle: "October 22, 2020"
   - [Coding Multiple Regression](#code-multipleregression)
   - [Model I and Model II Regression](#modelIIreg)
   - [Model Selection, AIC](#model-selection)
-  - [Two-Way ANOVA](#twowayanova)
+- Coding ANOVA  
   - [Running/Coding ANOVA](#runningANOVA)
+  - [Post-hoc](#post-hoc)
+  - [emmeans](#emmeans)
+  - [Plot Emmeans](#plot-emmeans)
+- [Simple Plots](#plots-and-graphs)
 
 
 Lecture Portion of Exam:
@@ -39,8 +48,7 @@ R portion of Exam:
 - Regression up through ANCOVA and Mixed Models (what was on PS5)
 
 
-<a name=glm></a>
-**General Linear Models**
+**General Linear Models** <a name=glm></a>
 - Regression
 - Multiple Regression
 - ANOVA
@@ -89,8 +97,7 @@ R portion of Exam:
 - Leverage
    1. Cook's D to test if outliers are influential
 
-<a name=multiple-regression></a>
-**Multiple Regression**
+**Multiple Regression** <a name=multiple-regression></a>
 - more variables can reduce unexplained variation
 - smaller residual error produces more powerful tests of each predictor
 - plot residuals of factor A regression vs factor B
@@ -110,8 +117,7 @@ R portion of Exam:
   - tolerance for each predictor: 1-r2 for regression of that predictor on all others
   - VIF values (variance inflator factor): 1/tolerance, look for large values (>10)
 
-<a name=anova-basics></a>
-**ANOVA**
+**ANOVA** <a name=anova-basics></a>
 - 1 continuous response variable
 - 1+ categorical predictor variable(s) = factor(s)
 - tests whether means differ (like t-test but with more than 2 means)
@@ -121,8 +127,7 @@ R portion of Exam:
   - homogeneity of variances
   - independence
 
-<a name=fratio></a>
-**F Tests/F Statistic**
+**F Tests/F Statistic** <a name=fratio></a>
 - F tests compare explained variation from our model / unexplained variation (residual/error)
 - F statistic is used to get probability that our Explained = Unexplained
 - Null hypothesis: slope = 0
@@ -133,12 +138,16 @@ R portion of Exam:
 - Residuals
   - difference between observed value and predicted value
 
-<a name=factors></a>
-**Fixed Factor**
+**Fixed Factor** <a name=factors></a>
 - the factor of interest in our study
 - testing the means to get a p value
 - all levels or groups of interest are used in the study
 - conclusions are restricted to those particular groups (cannot extrapolate)
+- Among SS increased by an added component due to treatment
+- have "sampled" the whole population of treatment levels
+- have no variance components
+- there are no unknowns - have measured the exact effect of a treatment level
+- could replicate and should theoretically get the same result
 
 **Random Factor**
 - random sampling of all groups of interest are used in the study
@@ -147,9 +156,12 @@ R portion of Exam:
 - don't care about testing the mean
 - used for explaining variation
 - used for avoiding pseudoreplication
+- Among SS increased by an added variance component
+- sampled a subset of all levels of a treatment that you care about
+- don't know the exact effect of each level (represent a broader distribution)
+- repeating the experiment with a different set of levels will give a different estimate of added variance
 
-<a name=onewayanova></a>
-**One-Way ANOVA: partitioning variation**
+**One-Way ANOVA: partitioning variation** <a name=onewayanova></a>
 - SS Total = SS Between Groups + SS Within Groups
 - Explained variation is between groups (difference between group means and grand means)
 - unexplained variation is within groups (difference between actual value and group mean)
@@ -166,6 +178,31 @@ R portion of Exam:
 - Total
   - df = pn-1
 
+**Two-Factor ANOVA** <a name=twowayanova></a>
+
+- Two factors (2 categorical predictor variables)
+  - Factor A (with p groups or levels)
+  - Factor B (with q groups or levels)
+- Crossed design (= orthogonal)
+  - every level of one factor is crossed with every level of the second factor
+  - if not every level is crossed with every other level, then do a nested anova
+- Greater efficiency
+  - can answer two questions with one experiment
+
+**Two-way ANOVA table**
+- degrees of freedom are the same as a one-way anova for each independent factor
+  - df factor A = p-1 (# levels - 1)
+  - df factor B = q-1 (# levels - 1)
+- df for the interaction term is (p-1)*(q-1)
+- df residual/error is pq*(n-1)
+- interaction null hypothesis: no interaction between predictor factors
+  - p < 0.05 shows significant interaction
+- Look at test of interaction first, THEN determine whether to interpret main effects
+  - no interaction if roughly parallel lines
+  - different slopes means interaction
+    - non intersecting: can still interpret main effects
+    - intersecting: do not interpret main effects
+
 **Nested ANOVA** <a name=nested-anova></a>
 - used to account for subsamples nested within replicates
 - if nesting is not acknowledged, these designs are pseudoreplicated
@@ -177,7 +214,7 @@ R portion of Exam:
   - SS-residual: variation among replicates within each B(A)
 - if you have nested factors within your treatment, you need to replicate the nested factor, not the subsamples
 - will want to know
-  - variance at each level (variance componenets)
+  - variance at each level ([variance componenets](#varcomp))
   
 **Nested ANOVA Table**
 - Factor A
@@ -196,11 +233,80 @@ R portion of Exam:
   - MS = SS-resid / (pq(n-1))
   
 **Mixed Model ANOVA** <a name=mixed-model-anova></a>
+- Fixed Factor: Among SS increasd by an added component due to treatment
+- Random Factor: Among SS increased by an added variance component (sigma-squqred-A)
 
+**Mixed Model ANOVA Table**
+- Both factors Fixed
+  - MS-A: F-ratio = MS-A / MS-residual, df = p-1
+  - MS-B: F-ratio = MS-B / MS-residual, df = q-1
+  - MS-AB: F-ratio = MS-AB / MS-residual, df = (p-1)(q-1)
+  - MS-residual
+- Both factors Random
+  - MS-A: F-ratio = MS-A / MS-AB
+  - MS-B: F-ratio = MS-B / MS-AB
+  - MS-AB: F-ratio = MS-AB / MS-residual
+  - MS-residual
+- Factor A Fixed, Factor B Random
+  - MS-A: F-ratio = MS-A / MS-AB
+  - MS-B: F-ratio = MS-B / MS-residual
+  - MS-AB: F-ratio = MS-AB / MS-residual
+  - MS-residual
+
+**Variance component** <a name=varcomp></a>
+- estimates the added variance that a group of means contributes to the total
+- sigma-squared(among) = sigma-squared-e + n(sigma-squared-A
+- sigma-squared-e: variance component due to error
+- sigma-squraed-a: variance component due to random factor
+
+**Block Design** <a name=block-design></a>
+- group replicates into blocks
+- reduce unexplained variation, without increasing size of experiment
+- used to unconfound effect of treatment from another variable that you know is present and may influence response to the treatment
+- Types
+  - completely randomized, no blocking
+  - randomized block - no replication within blocks (one of each treatment)
+  - replicated randomized block - maximize blocks, minimize replication within blocks (treatmnets replicated within blocks)
+    - df-A: 1
+    - df-Block:(# blocks) - 1
+    - df-AB
+    - df-resid
+  - replicated randomized block - minimize blocks, maximize replication within blocks (treatments replicated within blocks)
+    - df-A: 1
+    - df-Block: (# blocks) - 1 = 1
+    - df-AB: 2-1 = 1
+    - df-resid: (p-1)(q-1) = 20
+
+**Split Plot Design**
+- usually 3 factors, with one partly nested within the others
+- 1 treatment is applied to the whole plot
+- Another factor (B) has each of its levels applied to subplots nested within A
+- 1 factor (C) is a block that includes each level of A
+  - often unreplicated
+
+**Repeated Measures ANOVA** <a name=repeated-measures></a>
+- same sampling units are measured more than once
+- two types of Repeated Measures
+  - all treatments applied to all replicates in random order
+    - A (treatment): df = p-1, F = MS-A/MS-AB
+    - B (subject = block): df = q-1, F = MS-B/MS-residual
+    - Residual: df = (p-1)(q-1)
+  - each treatmenet applied toa subset of replicates
+    - A (treatment, fixed): df = p-1, F = MS-A/MS-B(A)
+    - B(A) (subject, random): df = q-1, F = MS-B/MS-resid
+    - C (time, fixed): df = r-1, MS-C/MS-resid
+    - AxC (fixed): df = (p-1)(q-1), F = MS-AC/MS-resid
+    - Residual: df = pq(r-1)
 
 **ANCOVA** <a name=ancova></a>
-- ANCOVA
-- Categorical and continuous predictor variables
+- at least on Categorical and at least one Continuous predictor variable(s)
+- linear model
+- combines ANOVA and regression
+- Purposes
+  - reduce unexplained variation to make tests more powerful
+  - compare slopes of two or more regression lines
+- same slope between groups: no significant interaction between treatment and covariate
+- different slopes: significant interaction between treatment and covariate
 
 **Other approaches**
 - Tests that allow unequal variances
@@ -214,8 +320,7 @@ R portion of Exam:
 - Permutation Tests
   - PERMANOVA
 
-<a name=correlation></a>
-**Correlation Tests**
+**Correlation Tests** <a name=correlation></a>
 - Pearson's R: for linear relationships; calculated on ranks <a name=PearsonR></a>
   - requires normality
 ```{r}
@@ -238,8 +343,7 @@ mytest3<-cor.test(mydata$cryduration, mydata$IQ, method="kendall")
 mytest3
 ```
 
-<a name=outliertest></a>
-**Outlier Test**
+**Outlier Test** <a name=outliertest></a>
 - Bonferroni test
   - only works after you've already fit a model to your data
   - Tells you whether most extreme value has undue influence
@@ -262,8 +366,7 @@ cutoff <- 4/((nrow(mydata)-length(model1$coefficients)-2))
 plot(model1, which=4, cook.levels=cutoff) 
 ```
 
-<a name=code-regression></a>
-**Coding Regression**
+**Coding Regression** <a name=code-regression></a>
 - one or more predictor (independent) variable(s), X
 - one response (dependent) variable, Y
 - F ratio
@@ -281,6 +384,9 @@ plot(model1, which=4, cook.levels=cutoff)
 
 1. Create the model
     1. Before we can fit a regression line, we need to describe the model
+```{r}
+model<-lm(dependent~independent, data=mydata)
+```
 1. Check linearity
 ```{r}
 plot(NumberSpp~Biomass, data=data4) #, col="blue", xlab="Biomass (mg/m2)", ylab="Species Richness")
@@ -317,8 +423,7 @@ summary(model)
 # gives t value and p value for each predictor variable
 ```
 
-<a name=code-multipleregression></a>
-**Coding Multiple Regression**
+**Coding Multiple Regression** <a name=code-multipleregression></a>
 1. Create the full model
     1. First we want to know which model fits the data best
 ```{r}
@@ -370,12 +475,12 @@ anova(reduced2)
 library(QuantPsyc)
 lm.beta(reduced2)
 ```
-<a name=modelIIreg></a>
-**Model I and Model II Regression**
+
+**Model I and Model II Regression** <a name=modelIIreg></a>
 - Model I
-  - measured without error. you chose specific values of X (i.e. fixed)
+  - measured without error. you chose specific values of X (i.e. fixed) (X is a set variable)
 - Model II
-  - There is error in the measure of x and y
+  - There is error in the measure of x and y (X is a measured variable)
   - both x and y are random variables, measured with error
   - in biology, often do Model II designs but use Model I regression
     - fine for hypothesis tests (p values) but not for accurate estimates of slope and intercept
@@ -388,23 +493,35 @@ library(lmodel2)
 model1<-lmodel2(area~height, range.y="relative", range.x="relative", data=mydata, nperm=99)
 model1 #Use these parameters (from RMA) to get estimates of slope and intercept
 ```
-<a name=model-selection></a>
-**Model Selection**
+
+**Model Selection, AIC** <a name=model-selection></a>
 - AIC (Akaike's Information Criterion)
   - takes the natural log of L (our likelihood) times 2, subtracted from double the number of parameters
   - AIC = 2k - 2ln(L)
     - k = number of parameters
     - lower values are better fits of the model
     - can compare a model of 2 parameters to a model of 10 parameters and see if our model is stronger. AIC takes into account (penalizes  you for) more parameters in your model
-
+- Likelihood Ratio Test
 ```{r}
 AIC(fullmodel)
 AIC(reduced1)
 AIC(reduced2)
+
+# LRT
+anova(fullmodel, reduced1)
 ```
 
-<a name=runningANOVA></a>
-**Running an ANOVA**
+**Running an ANOVA** <a name=runningANOVA></a>
+1. Load packages
+```{r}
+library(tidyverse)
+library(car) # qqp() and Anova()
+library(emmeans) # post-hoc test emmeans()
+library(agricolae) # HSD.test()
+library(lme4) # for testing random effects
+library(lmerTest) #Need this to get anova results from lmer
+library(MASS)
+```
 1. Make sure predictors are factor type
 ```{r}
 #Need to make Treatment a factor
@@ -438,6 +555,12 @@ model1<-lm(growth~Temperature + CO2 + Temperature:CO2, data=mydata)
 # Shortcut to writing the same thing:
 model1<-lm(growth~Temperature*CO2, data=mydata)
 
+# Mixed Model ANOVA
+model1<-lmer(WBCcolonies~Treatment + (1|Donor) + (1|Treatment:Donor), data=mydata)
+
+# Mixed model with Block Design
+model1<-lmer(abundance~disease*parasite + (1|block) + (1|disease:block) + (1|parasite:block) + (1|disease:parasite:block), data=mydata)
+
 # Repeated Measures ANOVA (for time as a fixed factor)
 model<-lmer(FvFm ~ temperature*day + (1|temperature:coral), data=data4) 
 # fixed: temperature, day
@@ -449,10 +572,6 @@ model1<-lm(Weight ~ TidalHeight * Length, data=mydata)
 plot(Weight~Length, data=mydata)
 #You can stop right there if you want, but if you wanted to go further and do model selection
 #Interaction term is highly non-significant, so you might want to do model selection and decide whether or not to drop it
-#Let's look at AIC with and without
-model2<-lm(Weight ~ TidalHeight + Length, data=mydata)
-AIC(model1)
-AIC(model2)
 ```
 1. Check assumptions of data and transform if necessary
 ```{r}
@@ -460,7 +579,7 @@ plot(model) # first option to look for spread less than 3x for any group
 library(car)
 qqp(residuals(model), "norm") #When we're using lmer, we have to do the probability plot ourselves
 ```
-1. Likelihood Ratio Test
+1. AIC and Likelihood Ratio Test
 ```{r}
 model5<-lmer(Calyxarea~Genotype + (1|Ramet:Genotype), data=data5) #the full model with the random effect
 model5b<-lm(Calyxarea~Genotype, data=data5) # model without the random effect
@@ -551,7 +670,7 @@ contrasts(mydata$Treatment)<- contrastmatrix
 summary(model1, split=list(Treatment=list("Better Test of Rodents"=1)))
 
 ```
-1. post-hoc Tukey Test
+1. post-hoc Tukey Test <a name=post-hoc></a>
 ```{r}
 #To do a post-hoc Tukey test
 TukeyHSD(model2) # requires aov() instead of lm() for model function
@@ -560,7 +679,7 @@ TukeyHSD(model2) # requires aov() instead of lm() for model function
 library(agricolae)
 HSD.test(model2, "Nitrogen", console=TRUE)
 ```
-1. Get estimated means (emmeans)
+1. Get estimated means (emmeans) <a name=emmeans></a>
 ```{r}
 #And let's create a bar plot of this data
 
@@ -585,10 +704,18 @@ graphdata<-as.data.frame(emmeans(model1, ~Temperature*CO2))
 
 # Repeated Measures ANOVA
 graphdata<-as.data.frame(emmeans(model1, ~Temperature:day)) #ignoring the random factor
+
+#I just want to see what these means look like independent of one another
+emmeans(model1, ~disease)
+emmeans(model1, ~parasite)
 ```
-1. Plot emmeans with Tukey letters
+1. Plot emmeans with Tukey letters <a name=plot-emmeans></a>
 ```{r}
 library(ggplot2)
+
+#GGplot plots the levels in alphabetical order. So instead I'm going to first 
+#reorder my graph data to the order that I want in a new column called Temps.
+graphdata$temperature<- factor(graphdata$temperature, levels = c("ambient", "warm", "hot"))
 
 # One-Way ANOVA
 ggplot(data=graphdata, aes(x=Nitrogen, y=emmean, fill=Nitrogen)) +
@@ -612,10 +739,18 @@ ggplot(data=graphdata, aes(x=Temperature, y=emmean, fill=factor(CO2), group=fact
   labs(x="Temperature (*C)", y="Growth of Basal Area (mm2)", fill="CO2") + #labels the x and y axes
   geom_errorbar(aes(ymax=emmean+SE, ymin=emmean-SE), stat="identity", position=position_dodge(width=0.5), width=0.1)
 
+# ANCOVA
+#To plot the data:
+predThick<-predict(model3) #Gets the predicted values from the regression lines in the ANCOVA
+graphdata<-cbind(mydata, predThick) #attaches those predictions to the dataset
+
+ggplot(data=graphdata, aes(lnThick, lnBreak, color=species)) +
+  theme_bw()+
+  theme(legend.title=element_text(colour="black", size=14), axis.text.x=element_text(face="bold", color="black", size=16), axis.text.y=element_text(face="bold", color="black", size=13), axis.title.x = element_text(color="black", size=18, face="bold"), axis.title.y = element_text(color="black", size=18, face="bold"),panel.grid.major=element_blank(), panel.grid.minor=element_blank()) +
+  geom_point() + geom_line(aes(y=predThick)) +
+  labs(x="ln Stipe Thickness", y="ln Break Force", fill="species")
+
 ```
-
-
-**One-Factor ANOVA**
 
 
 **Nested ANOVA**
@@ -634,47 +769,11 @@ library(agricolae) # HSD.test()
 library(lme4) # for testing random effects
 library(lmerTest) #Need this to get anova results from lmer
 library(MASS)
-
-
-
-
 ```
 
-<a name=twowayanova></a>
-**Two-Factor ANOVA**
 
-- Two factors (2 categorical predictor variables)
-  - Factor A (with p groups or levels)
-  - Factor B (with q groups or levels)
-- Crossed design (= orthogonal)
-  - every level of one factor is crossed with every level of the second factor
-  - if not every level is crossed with every other level, then do a nested anova
-- Greater efficiency
-  - can answer two questions with one experiment
-
-**Two-way ANOVA table**
-- degrees of freedom are the same as a one-way anova for each independent factor
-  - df factor A = p-1 (# levels - 1)
-  - df factor B = q-1 (# levels - 1)
-- df for the interaction term is (p-1)*(q-1)
-- df residual/error is pq*(n-1)
-- interaction null hypothesis: no interaction between predictor factors
-  - p < 0.05 shows significant interaction
-- Look at test of interaction first, THEN determine whether to interpret main effects
-  - no interaction if roughly parallel lines
-  - different slopes means interaction
-    - non intersecting: can still interpret main effects
-    - intersecting: do not interpret main effects
 
 ```{r}
-library(tidyverse)
-library(car) # qqp() and Anova()
-library(emmeans) # post-hoc test emmeans()
-library(agricolae) # HSD.test()
-library(lme4) # for testing random effects
-library(lmerTest) #Need this to get anova results from lmer
-library(MASS)
-
 #Two Factor ANOVA: main effects of Location and Tidal Height
 model1<-lm(Length~Location + TidalHeight, data=mydata)
 plot(model1) # check assumptions
@@ -688,8 +787,8 @@ plot(model2) # check assumptions
 anova(model2)
 
 #gather my summary data using emmeans
-summarydata<-as.data.frame(emmeans(model2, ~ Location*TidalHeight))
-summarydata
+graphdata<-as.data.frame(emmeans(model2, ~ Location*TidalHeight))
+graphdata
 
 #graph
 ggplot(graphdata, aes(x=Location, y=emmean, fill=factor(TidalHeight), group=factor(TidalHeight))) + 
@@ -699,19 +798,14 @@ ggplot(graphdata, aes(x=Location, y=emmean, fill=factor(TidalHeight), group=fact
   geom_errorbar(aes(ymax=emmean+SE, ymin=emmean-SE), stat="identity", position=position_dodge(width=0.9), width=0.1) +
   labs(x="Location", y="Snail Length", fill="TidalHeight") +
   scale_fill_manual(values=c("Low"="tomato","High"="dodgerblue2")) #fill colors for the bars # fill factor identities
-
-
 ```
 
-
-
-**Plots and Graphs**
+**Plots and Graphs** <a nmae=plots-and-graphs></a>
 
 - Scatterplot
 ```{r}
 plot(cryduration~IQ, data=mydata)
 ```
-
 
 - Plot with Confidence intervals
 ```{r}
@@ -726,19 +820,3 @@ ggplot(mydata, aes(x=lnHeight, y=lnSA))+
 ```
 
 
-
-
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
