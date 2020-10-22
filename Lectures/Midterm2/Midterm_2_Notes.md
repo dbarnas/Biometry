@@ -28,7 +28,7 @@ subtitle: "October 22, 2020"
     - [Pearson's R](#PearsonR)
     - [Spearman's Rho](#SpearmanRho)
     - [Kendall's Tau](#KendallTau)
-  - [Outlier Bonferonni Test](#outliertest)
+  - [Outlier Bonferonni Test, Leverage](#outliertest)
   - [Coding Regression](#code-regression)
   - [Coding Multiple Regression](#code-multipleregression)
   - [Model I and Model II Regression](#modelIIreg)
@@ -356,6 +356,7 @@ outlierTest(model1)
 ```
 - Cook's D for leverage
   - Points greater than 0.1 are potential outliers
+  - We should be concerned about leverage if the value is > 0.2 and very concerned if it is >0.5. For influence, Cook’s D values > 1-2 should cause you to carefully scrutinize the data
 ```{r}
 influencePlot(model1)
 #or simply
