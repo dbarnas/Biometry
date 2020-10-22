@@ -101,7 +101,7 @@ outlierTest(model1)
 rm(list=ls())
 
 #Import the data
-mydata <- read.csv("Data/streams.csv")
+mydata <- read.csv("Data/PS3/streams.csv")
 View(mydata)
 
 
