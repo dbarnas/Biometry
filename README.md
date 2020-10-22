@@ -2,8 +2,11 @@
 ### Fall 2020 CSUN Biometry Class
 
 **Contents:**  
-Week 1
-- [8/25/2020](Lectures/Class_1.Rmd)
+Lecture Notes
+- [Midterm 1 Notes](Lectures/Midterm1)
+- [Midterm 2 Notes](Lectures/Midterm2)
+- [Midterm 2 Study Guide](Lectures/Midterm2/Midterm_2_Notes.md)
 
-
+Scripts
+- [Problem Sets](Scripts/Problem_Sets)
 
