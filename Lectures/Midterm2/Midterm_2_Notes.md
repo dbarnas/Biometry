@@ -291,7 +291,7 @@ R portion of Exam:
     - A (treatment): df = p-1, F = MS-A/MS-AB
     - B (subject = block): df = q-1, F = MS-B/MS-residual
     - Residual: df = (p-1)(q-1)
-  - each treatmenet applied toa subset of replicates
+  - each treatmenet applied to a subset of replicates
     - A (treatment, fixed): df = p-1, F = MS-A/MS-B(A)
     - B(A) (subject, random): df = q-1, F = MS-B/MS-resid
     - C (time, fixed): df = r-1, MS-C/MS-resid
