@@ -221,7 +221,7 @@ plot(model1, xlab="ln Height", ylab="ln Surface Area")
 rm(list=ls())
 
 #Import the data
-mydata <- read.csv("Data/krat.csv")
+mydata <- read.csv("Data/PS3/krat.csv")
 View(mydata)
 
 

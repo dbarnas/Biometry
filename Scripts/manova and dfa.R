@@ -10,6 +10,7 @@
 #We need to create a matrix with all of our variables. 
 #But actually for this data, I'm just going to use the first 10 variables because it
 #makes the data set a bit more feasible for this example. You could use all the data if you wanted though
+spiders<-read.csv("Data/spiders.csv")
 
 spiders1<-spiders[,2:11] #remove guild names and take first 10 variables
 View(spiders1)

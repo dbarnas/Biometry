@@ -27,7 +27,7 @@ November 17, slot 6
 **Single variable goodness of fit tests**
 - Chi-square tests; G test
 - design: 
-  - one variable wiht >= 2 categories
+  - one variable with >= 2 categories
   - dependent variable is the counts (frequencies) in each category
 - expected frequencies in each category calculted from predicted proportions
 
@@ -38,10 +38,10 @@ November 17, slot 6
 - double check that your total expected frequency equals your total observed frequency
 - chi-squared (X2) is like an f statistic, in that you aren't squaring anything or taking the square root of anything
   - sum of ((observed minus expected)squared) divided by expected
-- get the p value the same way we get the f and t. we compare our chi-squared value to the chi-squred distribution
+- get the p value the same way we get the f and t. we compare our chi-squared value to the chi-squared distribution
 - each level of degrees of freedom has a slightly different shape of chi-squared distribution curve, and similar to f and t, you compare your chi-squared value along the correct distribution, with p values on the y axis and chi-squared values on the x axis to see if your value shows significance or not
 
-**note** that a likelihood ratio test is actually different from a true chi-squared test.  LRT's use the chi-squared distribution (by chance), but calculates the chi-squared value differently, so not actually chi-squared but called chi-squared sometimes
+**note** that a likelihood ratio test is actually different from a true chi-squared test.  LRT's use the chi-squared distribution (by chance), but calculates the chi-squared value differently, so not actually chi-squared but called chi-squared sometimes. when we get a chi-squared value from an ANOVA, that's actually the LRT
 
 **G test**
 - G = 2 * sum of each observed times ln(observed/expected)
@@ -52,7 +52,7 @@ November 17, slot 6
   - so use either for your statistics unless p value is actually significant with one and insignificant with another, in which case use G
 
 **Tests of Independence / Contingency Tables**
-- one more dimention to a goodness of fit test
+- one more dimension to a goodness of fit test
 - design: 
   - >= 2 categories crossed with >= 2 other categories
 - observed frequencies (counts) entered into each cell
@@ -80,8 +80,8 @@ November 17, slot 6
   - G h (heterogeneity): do different sites have different sex ratios 
     - H-0 heterogeneity: the ratio of wild-type to pale-eyed is the same across 
   - G p (pooled): 
-- we use the G-t to get to the G-h, but people don't usually report the G-t
-
+  - we use the G-t to get to the G-h, but people don't usually report the G-t
+  - rather than do a G test on the whole data set, do a G test on each subset of the data using one variable at a time, so then you could see how that G compares to the total G
 
 **Log-Linear Models in R**
 - always use family = "poisson" for frequencies
@@ -92,7 +92,7 @@ November 17, slot 6
     - season:fruit (effect of treatment) (whether they produced fruits or not varies across seasons)
     - treatment: fruit (effect of treatment) (whether they produced fruits or not varies across treatments)
     - season:treatment:fruit (effect of season-treatment interaction) (whether they produced fruits or not varies across season-treatment interaction)
-- anova(model, test="Chisq") but you aren't actually doing a chi-squared test here. you're doing a G test, but you're telling R to comapre to the chi-squared distribution
+- anova(model, test="Chisq") but you aren't actually doing a chi-squared test here. you're doing a G test, but you're telling R to compare to the chi-squared distribution
 
 - simple G test:
   - GTest() function and specify the expected probabilities p=c(#, #, #)

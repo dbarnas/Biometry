@@ -15,7 +15,7 @@ noeat<-225
 
 #Set up our table of observed and expected value:
 observed <- matrix(c(ate, noeat), nrow=1, ncol=2) #created a table of observed values
-#You will need to define the matrix by the number of rows and colums
+#You will need to define the matrix by the number of rows and columns
 #In order, you list the items in column 1, then the items in column 2, etc.
 
 exp <- matrix(c((ate+noeat)*0.5, (ate+noeat)*0.5), nrow=1, ncol=2)

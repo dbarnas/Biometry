@@ -25,7 +25,7 @@ Anova(model1)
 
 library(pscl)
 pR2(model1) #gives pseudo R^2
-#The last three columsn are all different types of pseudo-R^2s.
+#The last three columns are all different types of pseudo-R^2s.
 #I usually use McFadden's rho-square
 
 

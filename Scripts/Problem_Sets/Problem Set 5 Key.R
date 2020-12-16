@@ -9,7 +9,7 @@
 rm(list=ls())
 
 #Import the data
-mydata <- read.csv("Data/electromagnetic_effects.csv")
+mydata <- read.csv("Data/PS5/electromagnetic_effects.csv")
 View(mydata)
 
 #Donor should be a random factor, but treatment is a fixed factor
@@ -27,8 +27,6 @@ qqp(residuals(model1), "norm") #normality good too
 #Ok, now let's get our ANOVA table
 anova(model1)
 Anova(model1, type="III")
-
-
 
 ###################################
 ###Question 2: Plant Competition###
@@ -140,6 +138,8 @@ View(mydata)
 
 #Be sure to turn day into a factor
 mydata$day<-as.factor(mydata$day)
+mydata$coral<-as.factor(mydata$coral)
+mydata$temperature<-as.factor(mydata$temperature)
 
 #Run the model, with Temp and Day as fixed effects, and Coral as a random factor
 library(lme4)

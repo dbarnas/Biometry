@@ -38,9 +38,9 @@ Create multiple derived variables
   - explains the most variance
 - second explains most of the remaining variance after the first has been extracted
   - uncorrelated with the first
-- third explains most of hte remaining variance after the first and second are extracted, and is uncorrelated with either the first or second, etc.
+- third explains most of the remaining variance after the first and second are extracted, and is uncorrelated with either the first or second, etc.
 - number of new derived variables is the same as the number of original variables
-  - but usually the first few explian much variance
+  - but usually the first few explain much variance
 - graphing for publication
   - typically folks just graph the first two (because often explain the most variation and difficult to visualize 3D on 2D paper)
   - you can display them in three-dimensional space, as well as possible on 2D

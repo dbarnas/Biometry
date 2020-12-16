@@ -71,8 +71,8 @@ biplot(PCAmodel, xlab="PC1", ylab="PC2")
 #this look a bit better so we can see differences among guilds
 
 #I like using ggbiplot
-library(devtools)
-install_github("vqv/ggbiplot") #You only need to download this package once
+#library(devtools)
+#install_github("vqv/ggbiplot") #You only need to download this package once
 
 #In this biplot code, I'm going to separate the spiders by guild (so I need to use my non-subsetted data file)
 #So I use the original file to refer to guilds, but the PCA data for everything else.
@@ -84,4 +84,4 @@ biplot<-ggbiplot(PCAmodel, obs.scale=1, var.scale=1, groups=spiders$Guild, ellip
   scale_color_discrete(name='') +
   geom_point(aes(colour=factor(spiders$Guild)), size = 1) + #Color codes by Guild
   theme(legend.direction = 'vertical', legend.position='right', legend.text=element_text(size=4))
-
+biplot

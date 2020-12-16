@@ -75,12 +75,17 @@ www.csun.edu/SEF
 -	Homogeneity of variance-covariance matrix
 -	No collinearity between variables (r < 0.9)
 
+**Descriminant Function**
+- MANOVA linear model
+- also used for Descriminant Function Analysis
+
 **DFA: Discriminant Function Analysis**
 -	How well does the discriminant function classify data to particular groups?
 -	If you find that your DFA is good at classifying groups, then you could take new data, apply the DFA to it, and assign your data into your groups
 -	Groups are pre-determined (by you)
 -	Can also classify new observations into one of the groups
 -	Produces a measure of the likelihood of success of our classification
+
 **Classification and Prediction**
 -	3 steps in using classification functions
   1.	Get the coefficients and constant of the classification equation for each group
@@ -129,13 +134,14 @@ MDS: multidimensional scaling**
   b.	Can affect interpretation of data
     i.	*No transformation* emphasizes large values
     ii.	*Square root* transformation de-emphasizes large values
-    iii.	*Fourth root* de-emphasizes large values more
-    iv.	*Log transformation* de-emphasizes large values more
+    iii.	*Fourth root* de-emphasizes large values more than square root
+    iv.	*Log transformation* de-emphasizes large values even more than fourth root
   c.	If you want to emphasize those large values, then you don’t have to do any transformation, but if you want to de-emphasize those large values, then do a transformation. And most of the time, folks do a fourth root transformation
     i.	Fourth root is most common and it’s more common to transform data than to not transform data
 3.	Dissimilarity matrix
   a.	Bray-Curtis is the best dissimilarity measure for ecological data with lots of zeros
     i.	Default in R
+    ii. no reason to not use Bray-Curtis
   b.	For other data, Euclidean distance and other measures are appropriate
 4.	Decide number of axes (dimensions)
   a.	Usually between 2 and 4 dimensions
@@ -172,7 +178,7 @@ PERMANOVA (permutational ANOVA)
   -	Do this many times (999?)
   -	P = # times permutedF > actualF) + 1 / (total number of permutations + 1)
 -	Very powerful and flexible (can handle complex linear models)
-
+- permutations: shuffle the data and check if the F value is better or worse
 
 ANOSIM (Analysis of Similarity)
 -	Same thing that permanova is doing, but instead of using actual dissimilarities, ANOSIM uses ranks of dissimilarities

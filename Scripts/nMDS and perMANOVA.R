@@ -67,7 +67,7 @@ ordiellipse(ord, groups=PercentTotal$Site, label=F, kind='ehull', border='white'
 ordiellipse(ord, groups=PercentTotal$Site, kind='sd', border='white', col=c('purple','red','magenta','lightblue'), lwd=2, draw ='polygon')
 
 # can add or remove labels 
-#other options # just draw a ploygon
+#other options # just draw a polygon
 ordihull(ord, groups=PercentTotal$Site, col=c('purple','red','magenta','lightblue'))
 #add site labels
 ordispider(ord, groups=PercentTotal$Site, col=c('purple','red','magenta','lightblue'), label = T)# make a spider plot
@@ -95,8 +95,8 @@ betadisper(disper, PercentTotal$Site)
 #A rule of thumb is that one number should not be twice as high as any other
 
 #An option for doing post-hoc pairwise comparisons in R
-library(devtools)
-install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
+  #library(devtools)
+  #install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
 library(pairwiseAdonis)
 pairwise.adonis(PercentTotal[-1], PercentTotal$Site, perm=999)
 
